@@ -1,0 +1,6 @@
+stof_doctrine_extensions:
+  default_locale: ru_RU
+  orm:
+    default:
+      timestampable: true,
+      sortable: true
