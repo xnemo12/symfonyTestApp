@@ -27,9 +27,9 @@ class DocumentController extends AbstractController
         $sort = $request->get('sort', 'ASC');
 
         $documents = $repository->getAll($q, $perPage, $page, $sort);
-        return $this->json([
-            $documents,
-        ], JsonResponse::HTTP_OK);
+        $count = $repository->getCount($q);
+
+        return $this->json(['data'=>$documents, 'count'=>$count],JsonResponse::HTTP_OK);
     }
 
     /**
