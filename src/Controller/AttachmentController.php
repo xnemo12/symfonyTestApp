@@ -7,8 +7,10 @@ use App\Entity\Document;;
 use App\Util\FileUpload;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 
 class AttachmentController extends AbstractController
@@ -30,17 +32,17 @@ class AttachmentController extends AbstractController
     }
 
     /**
-     * @Rest\Post("/attachment")
+     * @Rest\Post("/attachment/{id}")
+     * @param Document $document
      * @param Request $request
      * @param FileUpload $uploader
      * @return JsonResponse
      */
-    public function postAttachment(Request $request, FileUpload $uploader)
+    public function postAttachment(Document $document, Request $request, FileUpload $uploader)
     {
         try
         {
             $em = $this->getDoctrine()->getManager();
-            $document = $em->getRepository(Document::class)->find($request->get('id'));
             $file = $request->files->get('attach');
 
             if (!$document)
@@ -69,27 +71,29 @@ class AttachmentController extends AbstractController
 
     /**
      * @Rest\Delete("/attachment/{id}")
-     * @param int $id
+     * @param Attachment $attachment
      * @param FileUpload $uploader
      * @return JsonResponse
      */
-    public function deleteAttachment(int $id, FileUpload $uploader)
+    public function deleteAttachment(Attachment $attachment, FileUpload $uploader)
     {
-        $attachment = $this->getDoctrine()->getRepository(Attachment::class)->find($id);
-
-        if ($attachment)
+        try
         {
-            $uploader->remove($attachment);
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($attachment);
-            $em->flush();
+            if ($attachment)
+            {
+                $em = $this->getDoctrine()->getManager();
+                $em->remove($attachment);
+                $em->flush();
+                $uploader->remove($attachment);
+            }
         }
-
+        catch(\Exception $ex)
+        {}
         return $this->json([], JsonResponse::HTTP_NO_CONTENT);
     }
 
     /**
-     * @Rest\Post("/attachment/{srcAttach}/{destAttach}")
+     * @Rest\Post("/attachment/order/{srcAttach}/{destAttach}")
      * @param Attachment $srcAttach
      * @param Attachment $destAttach
      * @return JsonResponse
@@ -107,5 +111,19 @@ class AttachmentController extends AbstractController
         $em->flush();
 
         return $this->json(['msg'=>'Positions changed'], JsonResponse::HTTP_OK);
+    }
+
+    /**
+     * @Rest\Get("/download/{id}", name="download_file")
+     * @param Attachment $attachment
+     * @param FileUpload $uploader
+     * @return BinaryFileResponse
+     */
+    public function downloadFileAction(Attachment $attachment, FileUpload $uploader)
+    {
+        $filePath = $uploader->getFilePath($attachment->getPath());
+        $response = new BinaryFileResponse($filePath);
+        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT,$attachment->getOriginalName());
+        return $response;
     }
 }

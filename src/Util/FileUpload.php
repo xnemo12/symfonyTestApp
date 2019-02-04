@@ -48,4 +48,9 @@ class FileUpload
         $filePath = $this->baseDir . '/public/uploads/' . $attachment->getPath();
         unlink($filePath);
     }
+
+    public function getFilePath($path)
+    {
+        return $this->baseDir . '/public/uploads/' . $path;
+    }
 }
