@@ -36,8 +36,8 @@ class DocumentRepository extends ServiceEntityRepository
             $query->andWhere('d.name like :q')
                 ->setParameter('q', '%'.$q.'%');
 
-        $query->orderBy('d.id', $sort)
-            ->setFirstResult($page * $perPage)
+        $query->orderBy('d.name', $sort)
+            ->setFirstResult(($page-1)*$perPage )
             ->setMaxResults($perPage);
 
         return $query->getQuery()->getResult();
@@ -47,7 +47,7 @@ class DocumentRepository extends ServiceEntityRepository
      * @param string $q
      * @return mixed
      */
-    public function getCount(string $q)
+    public function getCount(string $q=null)
     {
         $query = $this->createQueryBuilder('d')
             ->select('count(d.id)');;
