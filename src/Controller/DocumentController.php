@@ -100,4 +100,20 @@ class DocumentController extends AbstractController
 
         return $this->json([], JsonResponse::HTTP_NO_CONTENT);
     }
+
+    /**
+     * @Rest\Delete("/documents")
+     * @param Request $request
+     * @param DocumentRepository $repository
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     */
+    public function bulkDeleteDocument(Request $request, DocumentRepository $repository)
+    {
+        $documents = $request->get("documents");
+        $count = $repository->deleteBulk($documents);
+
+        return $this->json(['count'=>$count], JsonResponse::HTTP_OK);
+    }
+
+
 }

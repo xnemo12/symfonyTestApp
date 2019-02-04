@@ -61,4 +61,12 @@ class DocumentRepository extends ServiceEntityRepository
         } catch (NonUniqueResultException $e) {
         }
     }
+
+    public function deleteBulk($documents)
+    {
+        $em = $this->getEntityManager();
+        $q = $em->createQuery('delete from App\Entity\Document d where d.id IN (:documents)')
+            ->setParameter("documents", $documents);
+        return $q->execute();
+    }
 }
