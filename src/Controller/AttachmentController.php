@@ -50,7 +50,7 @@ class AttachmentController extends AbstractController
 
             $attachment = new Attachment();
             $attachment->setOriginalName($file->getClientOriginalName());
-            $attachment->setExtension($file->guessExtension());
+            $attachment->setExtension(!is_null($file->guessExtension()) ? : "temp" );
             $attachment->setSize($file->getSize());
             $attachment->setDocument($document);
 
