@@ -45,7 +45,7 @@ class Attachment
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Document", inversedBy="attachments")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $document;
 
